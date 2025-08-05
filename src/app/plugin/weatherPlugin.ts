@@ -60,12 +60,8 @@ function extractCityFromQuery(query: string): string {
 			if (cities.has(potentialCity)) {
 				return potentialCity;
 			}
-			// If exact match not found, check if any known city is contained
-			for (const city of cities) {
-				if (potentialCity.includes(city) || city.includes(potentialCity)) {
-					return city;
-				}
-			}
+			// If exact match not found, return the potential city directly
+			return potentialCity;
 		}
 	}
 
