@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { weatherPlugin, isWeatherQuery } from "./weatherPlugin";
-import { mathPlugin, isMathQuery } from "./mathPlugin";
+import { weatherPlugin, isWeatherQuery } from "../../../plugin/weatherPlugin";
+import { mathPlugin, isMathQuery } from "../../../plugin/mathPlugin";
 
 export async function POST(req: NextRequest) {
 	const { message, session_id } = await req.json();

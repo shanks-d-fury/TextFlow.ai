@@ -1,5 +1,5 @@
 import { fetchWeatherApi } from "openmeteo";
-import { loadCitiesFromJSON } from "./cityLoader";
+import { loadCitiesFromJSON } from "../api/agent/message/cityLoader";
 
 type Coordinates = { longitude: number; latitude: number; city: string };
 
