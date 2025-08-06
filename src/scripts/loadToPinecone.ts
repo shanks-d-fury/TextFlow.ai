@@ -6,7 +6,6 @@ dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 import { loadMarkdownFiles } from "@/lib/readMarkdown";
 import { generateEmbedding } from "@/lib/geminiEmbed";
 import { upsertToPinecone } from "@/lib/pinecone";
-import { reduceDimensions } from "../lib/dimensionReducer";
 
 const run = async () => {
 	const files = loadMarkdownFiles("../lib/documents");
@@ -20,7 +19,7 @@ const run = async () => {
 				: embedding?.values;
 
 			// Reduce dimensions to 2048 (max allowed)
-			const values = rawValues ? reduceDimensions(rawValues, 2048) : null;
+			const values = rawValues ? rawValues : null;
 
 			return {
 				id: `doc-${idx}`,

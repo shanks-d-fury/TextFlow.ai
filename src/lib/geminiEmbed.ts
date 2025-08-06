@@ -19,10 +19,12 @@ function getAIClient() {
 export const generateEmbedding = async (text: string) => {
 	// Get client only when needed
 	const ai = getAIClient();
-
 	const response = await ai.models.embedContent({
 		model: "gemini-embedding-001",
 		contents: [text],
+		config: {
+			outputDimensionality: 2048,
+		},
 	});
 
 	// Assuming the API returns an array of embeddings

@@ -1,6 +1,5 @@
 import { generateEmbedding } from "./geminiEmbed";
 import { queryPinecone } from "./pinecone";
-import { reduceDimensions } from "./dimensionReducer";
 
 export async function retrieveContextForMessage(message: string) {
 	// Generate embedding for the user message
@@ -14,16 +13,13 @@ export async function retrieveContextForMessage(message: string) {
 
 	if (!embeddingValues) return "";
 
-	// Reduce dimensions to match Pinecone's requirements
-	const reducedEmbedding = reduceDimensions(embeddingValues);
-
 	// Query Pinecone with the reduced embedding
-	const results = await queryPinecone(reducedEmbedding);
+	const results = await queryPinecone(embeddingValues);
 
 	// Format the retrieved documents as context
 	const contextParts = results.map((result) => {
 		if (result.metadata) {
-			return `Source: ${result.metadata.filename}\n${
+			return `Source: ${result.metadata.filename} ${
 				result.metadata.text || ""
 			}`;
 		} else {

@@ -10,7 +10,13 @@ export function loadCitiesFromJSON(): Set<string> {
 	}
 
 	try {
-		const jsonPath = path.join(process.cwd(), "src", "data", "cities.json");
+		const jsonPath = path.join(
+			process.cwd(),
+			"src",
+			"lib",
+			"data",
+			"cities.json"
+		);
 		const jsonContent = fs.readFileSync(jsonPath, "utf-8");
 		const data = JSON.parse(jsonContent);
 
