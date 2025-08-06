@@ -6,7 +6,7 @@ export default function Home() {
 	return (
 		<div className="container">
 			<header>
-				<h1>Text Flow AI API</h1>
+				<h1>Text_Flow.AI</h1>
 				<p className="subtitle">
 					A conversational AI agent with plugin support and RAG capabilities
 				</p>
