@@ -33,3 +33,18 @@ export const upsertToPinecone = async (
 		filteredVectors as { id: string; values: number[]; metadata: any }[]
 	);
 };
+
+export const queryPinecone = async (queryEmbedding: number[]) => {
+	// Get client only when the function is called
+	const pinecone = getPineconeClient();
+	const index = pinecone.Index(process.env.PINECONE_INDEX_NAME!);
+
+	// Query the index for similar vectors
+	const queryResults = await index.query({
+		vector: queryEmbedding,
+		topK: 3,
+		includeMetadata: true,
+	});
+
+	return queryResults.matches || [];
+};

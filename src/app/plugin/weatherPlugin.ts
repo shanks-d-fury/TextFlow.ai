@@ -126,7 +126,3 @@ export async function weatherPlugin(query: string): Promise<WeatherCurrent> {
 	};
 	return weatherData.current;
 }
-
-export function isWeatherQuery(query: string): boolean {
-	return /weather|temperature|climate/i.test(query);
-}

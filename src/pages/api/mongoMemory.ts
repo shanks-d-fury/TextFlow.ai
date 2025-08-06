@@ -37,11 +37,21 @@ const conversationSchema = new Schema<ConversationDoc>({
 	lastUpdated: {
 		type: Date,
 		default: Date.now,
+		index: { expireAfterSeconds: 1800 }, // TTL index for 30 minutes
 	},
 	createdAt: {
 		type: Date,
 		default: Date.now,
 	},
+});
+
+// Middleware to keep only last 20 messages
+conversationSchema.pre("save", function (next) {
+	if (this.messages && this.messages.length > 20) {
+		this.messages = this.messages.slice(-20);
+	}
+	this.lastUpdated = new Date();
+	next();
 });
 
 // Create the model
@@ -96,8 +106,14 @@ class MongoConversationStore {
 			await ConversationModel.findOneAndUpdate(
 				{ sessionId },
 				{
-					$push: { messages: message },
+					$push: {
+						messages: {
+							$each: [message],
+							$slice: -20, // Keep only last 20 messages
+						},
+					},
 					$set: { lastUpdated: new Date() },
+					$setOnInsert: { createdAt: new Date() },
 				},
 				{ upsert: true, new: true }
 			);
@@ -117,7 +133,7 @@ class MongoConversationStore {
 				return "";
 			}
 
-			const lastMessages = conversation.messages.slice(-3);
+			const lastMessages = conversation.messages.slice(-2);
 			const context = lastMessages
 				.map((msg) => `Q: ${msg.question}\nA: ${msg.content}`)
 				.join("\n\n");
@@ -128,19 +144,6 @@ class MongoConversationStore {
 			return "";
 		}
 	}
-
-	async clearSession(sessionId: string): Promise<boolean> {
-		await this.connect();
-
-		try {
-			const result = await ConversationModel.deleteOne({ sessionId });
-			return result.deletedCount > 0;
-		} catch (error) {
-			console.error("❌ Error clearing session:", error);
-			return false;
-		}
-	}
-
 	async disconnect(): Promise<void> {
 		if (this.isConnected) {
 			await mongoose.connection.close();
@@ -152,6 +155,28 @@ class MongoConversationStore {
 
 // Create singleton instance
 export const mongoConversationStore = new MongoConversationStore();
+
+// Enhanced graceful shutdown for Atlas
+let isShuttingDown = false;
+
+const gracefulShutdown = async (signal: string) => {
+	if (isShuttingDown) return;
+	isShuttingDown = true;
+
+	console.log(`🛑 Received ${signal}, shutting down gracefully...`);
+
+	try {
+		await mongoConversationStore.disconnect();
+		console.log("✅ Graceful shutdown completed");
+		process.exit(0);
+	} catch (error) {
+		console.error("❌ Error during shutdown:", error);
+		process.exit(1);
+	}
+};
+
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
 
 // Export types
 export type { ConversationMessage, ConversationDoc };

@@ -1,16 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
-import { weatherPlugin, isWeatherQuery } from "../../../plugin/weatherPlugin";
-import { mathPlugin, isMathQuery } from "../../../plugin/mathPlugin";
+import { weatherPlugin } from "../../../plugin/weatherPlugin";
+import { mathPlugin } from "../../../plugin/mathPlugin";
 import { mongoConversationStore } from "../../../../pages/api/mongoMemory";
+import { plugin_llm } from "./ai_agent/plugin_llm";
+import { agent_llm } from "./ai_agent/agent_llm";
+import { retrieveContextForMessage } from "../../../../lib/rag";
 
 export async function POST(req: NextRequest) {
 	const { message, session_id } = await req.json();
+	let pluginResult: string | null = "";
+	let reply: string | null = "";
 
-	let pluginResult = "";
-	let reply = "";
+	// Use plugin_llm to classify the query
+	const queryType = await plugin_llm(message);
+	// console.log(queryType);
 
-	// Check for weather intent
-	if (isWeatherQuery(message)) {
+	// Handle based on classification
+	if (queryType === "WEATHER") {
 		try {
 			const response = await weatherPlugin(message);
 			if (response) {
@@ -23,34 +29,38 @@ export async function POST(req: NextRequest) {
 		}
 	}
 	// Check for math expression
-	else if (isMathQuery(message)) {
+	else if (queryType === "MATH") {
 		const mathResult = mathPlugin(message);
 		if (mathResult) {
 			pluginResult = mathResult;
 			reply = mathResult;
 		}
 	}
+	// Get conversation context for LLM
+	const conversationContext =
+		await mongoConversationStore.getSystemPromptContext(session_id);
 
-	if (!reply) {
-		// Get conversation context for LLM
-		const conversationContext =
-			await mongoConversationStore.getSystemPromptContext(session_id);
-		// TODO: Integrate your LLM here using the conversationContext
+	// Retrieve relevant context from knowledge base
+	const retrievedContext = await retrieveContextForMessage(message);
 
-		if (conversationContext) {
-			reply =
-				"I understand. Based on our conversation, how can I help you further?";
-		} else {
-			reply = "Hello! How can I assist you today?";
-		}
-	}
+	// Combine conversation history with retrieved context and plugin results
+	const fullSystemContext = [
+		conversationContext || "",
+		retrievedContext ? `\n\nRelevant information:\n${retrievedContext}` : "",
+		pluginResult ? `\n\n pluginResult:\n${pluginResult}` : "",
+	]
+		.filter(Boolean)
+		.join("");
+
+	// Use agent_llm to generate response
+	reply = await agent_llm(message, fullSystemContext);
 
 	// Store the question-response pair
 	await mongoConversationStore.addMessage(
 		session_id,
-		message, // question
-		reply, // LLM response
-		pluginResult // plugin result if any
+		message,
+		reply,
+		pluginResult
 	);
 
 	return NextResponse.json({
