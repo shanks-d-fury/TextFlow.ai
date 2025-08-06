@@ -39,6 +39,17 @@ curl -X POST http://text-flow-ai.vercel.app/api/agent/message \
 }
 ```
 
+## Frontend Interface
+
+I have deployed a simple frontend interface at the root route (`/`) that provides:
+
+- Interactive documentation
+- Copy-paste API examples
+
+You can access this page at [http://text-flow-ai.vercel.app/](http://text-flow-ai.vercel.app/)
+
+![Text Flow AI Frontend](./public/text-flow-frontend.png)
+
 ## Key Features
 
 - **Conversation Memory**: Persistent conversation history with MongoDB backend
@@ -77,6 +88,49 @@ curl -X POST http://text-flow-ai.vercel.app/api/agent/message \
 5. Relevant information is retrieved from Pinecone vector DB
 6. Agent LLM generates comprehensive response using all context
 7. Response is stored in MongoDB and returned to user
+
+## Project Overview
+
+Text Flow AI is a conversational AI agent system that combines modern language models with structured plugins and context retrieval capabilities. The project implements an intelligent chat interface that maintains conversation history while providing specialized functionality through a plugin architecture.
+
+The core of the system is built around a two-stage classification approach that first identifies the query type and then routes requests to appropriate plugins. The application features conversation memory with MongoDB-based session tracking and automatic cleanup through TTL indexes.
+
+A key feature is the Retrieval Augmented Generation (RAG) system that enhances responses with information from a knowledge base stored in Pinecone. The system retrieves relevant context from markdown documents to provide more informed and accurate responses.
+
+## Tech Stack
+
+### Frontend
+
+- **Next.js**: React framework for the UI layer
+- **TypeScript**: Static typing for JavaScript
+- **CSS**: Custom styling for the interface
+- **Font Awesome**: Icon library
+
+### Backend
+
+- **Next.js API Routes**: Server-side API endpoints
+- **Node.js**: JavaScript runtime environment
+
+### Database & Storage
+
+- **MongoDB**: Persistent storage for conversation history with TTL indexing
+- **Pinecone**: Vector database for RAG system document retrieval
+
+### AI Components
+
+- **LLM Integration**: Gemini model for response generation
+- **Vector Embeddings**: For document similarity search
+- **Plugin System**: Modular architecture for specialized capabilities
+
+### Development Tools
+
+- **ESLint**: Code quality and style checking
+- **TypeScript**: Type safety across the codebase
+- **Git**: Version control
+
+### Deployment
+
+- **Vercel**: Hosting platform for the application
 
 ## Setup Instructions
 
