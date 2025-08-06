@@ -1,8 +1,27 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import "./page.css";
+
 export default function Home() {
+	const [copied, setCopied] = useState(false);
+	const jsonExample = `{
+  "message": "Your question or request here",
+  "session_id": "unique-session-identifier"
+}`;
+
+	const copyToClipboard = () => {
+		navigator.clipboard
+			.writeText(jsonExample)
+			.then(() => {
+				setCopied(true);
+				setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
+			})
+			.catch((err) => {
+				console.error("Failed to copy: ", err);
+			});
+	};
+
 	return (
 		<div className="container">
 			<header>
@@ -19,12 +38,23 @@ export default function Home() {
 					following JSON payload:
 				</p>
 
-				<pre>
-					{`{
-  "message": "Your question or request here",
-  "session_id": "unique-session-identifier"
-}`}
-				</pre>
+				<div className="code-container">
+					<pre className="json-button">
+						{jsonExample}
+						<button
+							className="copy-button"
+							onClick={copyToClipboard}
+							aria-label="Copy to clipboard"
+							type="button"
+						>
+							{copied ? (
+								<span className="copied-text">Copied!</span>
+							) : (
+								<i className="fa-solid fa-file-code"></i>
+							)}
+						</button>
+					</pre>
+				</div>
 
 				<h3>Available Features</h3>
 				<ul>
