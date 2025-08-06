@@ -20,8 +20,8 @@ export async function POST(req: NextRequest) {
 	// Combine conversation history with retrieved context and plugin results
 	const fullSystemContext = [
 		conversationContext || "",
-		retrievedContext ? `\n\nRelevant information:\n${retrievedContext}` : "",
-		pluginResult ? `\n\nTool result:\n${pluginResult}` : "",
+		retrievedContext ? `Relevant information: ${retrievedContext}` : "",
+		pluginResult ? `PluginResult: ${pluginResult}` : "",
 	]
 		.filter(Boolean)
 		.join("");
@@ -39,6 +39,5 @@ export async function POST(req: NextRequest) {
 
 	return NextResponse.json({
 		reply,
-		session_id,
 	});
 }

@@ -4,18 +4,34 @@ import React, { useState } from "react";
 import "./page.css";
 
 export default function Home() {
-	const [copied, setCopied] = useState(false);
+	// Track which button was copied
+	const [copiedType, setCopiedType] = useState<string | null>(null);
+
 	const jsonExample = `{
   "message": "Your question or request here",
   "session_id": "unique-session-identifier"
 }`;
+	const curlExample = `curl -X POST http://text-flow-ai.vercel.app/api/agent/message \
+  
+    -H 'Content-Type: application/json' \
+	
+    -d '{
+    "message": "what technologies are used to build the blog?",
+    "session_id": "user111"
+  }'`;
 
-	const copyToClipboard = () => {
+	const copyToClipboard = (type: string) => {
+		let resultType: string = "";
+		if (type.match("curl")) {
+			resultType += curlExample;
+		} else {
+			resultType += jsonExample;
+		}
 		navigator.clipboard
-			.writeText(jsonExample)
+			.writeText(resultType)
 			.then(() => {
-				setCopied(true);
-				setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
+				setCopiedType(type);
+				setTimeout(() => setCopiedType(null), 2000); // Reset after 2 seconds
 			})
 			.catch((err) => {
 				console.error("Failed to copy: ", err);
@@ -33,21 +49,37 @@ export default function Home() {
 
 			<section className="api-instructions">
 				<h2>API Usage</h2>
-				<p>
-					Send POST requests to <code>/api/agent/message</code> with the
-					following JSON payload:
-				</p>
 
 				<div className="code-container">
+					<p>
+						Send POST requests to <code>/api/agent/message</code> with the
+						following JSON payload:
+					</p>
 					<pre className="json-button">
-						{jsonExample}
+						<small>{jsonExample}</small>
 						<button
 							className="copy-button"
-							onClick={copyToClipboard}
+							onClick={() => copyToClipboard("json")}
 							aria-label="Copy to clipboard"
 							type="button"
 						>
-							{copied ? (
+							{copiedType === "json" ? (
+								<span className="copied-text">Copied!</span>
+							) : (
+								<i className="fa-solid fa-file-code"></i>
+							)}
+						</button>
+					</pre>
+					<p>or use this cURL command </p>
+					<pre className="json-button">
+						<small className="curlExample">{curlExample}</small>
+						<button
+							className="copy-button"
+							onClick={() => copyToClipboard("curl")}
+							aria-label="Copy to clipboard"
+							type="button"
+						>
+							{copiedType === "curl" ? (
 								<span className="copied-text">Copied!</span>
 							) : (
 								<i className="fa-solid fa-file-code"></i>
