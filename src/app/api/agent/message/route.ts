@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { mongoConversationStore } from "../../../../database/api/mongoMemory";
-import { agent_llm } from "../../../../ai_agent/agent_llm";
+import { agent_llm } from "../../../../llm_agents/agent_llm";
 import { retrieveContextForMessage } from "../../../../lib/rag";
 import { processQuery } from "./queryType";
 

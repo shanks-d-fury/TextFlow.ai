@@ -1,7 +1,7 @@
 import { mathPlugin } from "@/plugin/mathPlugin";
 import { weatherPlugin } from "@/plugin/weatherPlugin";
 import { calendarPlugin } from "@/plugin/calendarPlugin";
-import { plugin_llm } from "../../../../ai_agent/plugin_llm";
+import { plugin_llm } from "../../../../llm_agents/plugin_llm";
 
 export async function processQuery(message: string): Promise<{
 	pluginResult: string;

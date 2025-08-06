@@ -236,6 +236,6 @@ export function mathPlugin(query: string): string | null {
 
 		return null;
 	} catch (error) {
-		return "Sorry, I couldn't evaluate that mathematical expression.";
+		return `Sorry, I couldn't evaluate that mathematical expression.${error}`;
 	}
 }
